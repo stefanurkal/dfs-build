@@ -304,7 +304,7 @@ public class BuildTest {
     // A null vertex should yield an empty string.
     assertEquals("", Build.longestWord(null));
   }
-
+ 
   @Test
   public void testLongestWord_SingleVertex() {
     Vertex<String> vertex = new Vertex<>("simple");

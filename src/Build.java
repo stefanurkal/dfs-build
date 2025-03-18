@@ -14,7 +14,27 @@ public class Build {
    * @param k the maximum word length (exclusive)
    */
   public static void printShortWords(Vertex<String> vertex, int k) {
+    Set<Vertex<String>> visited = new HashSet<>();
+
+      printShortWords(vertex, k, visited);
+
   }
+
+  public static void printShortWords(Vertex<String> vertex, int k, Set<Vertex<String>> visited){
+    if(visited.contains(vertex)) return;
+    if(vertex == null) return;
+
+    visited.add(vertex);
+
+    if (vertex.data.length() < k){
+      System.out.println(vertex.data);
+    }
+
+    for (Vertex<String> neighbor : vertex.neighbors) {
+      printShortWords(neighbor, k, visited);
+    }
+
+  } 
 
   /**
    * Returns the longest word reachable from the given vertex, including its own value.
@@ -23,7 +43,30 @@ public class Build {
    * @return the longest reachable word, or an empty string if the vertex is null
    */
   public static String longestWord(Vertex<String> vertex) {
-    return "";
+    Set<Vertex<String>> visited = new HashSet<>();
+    return longestWord(vertex, visited);
+  }
+
+  public static String longestWord(Vertex<String> vertex, Set<Vertex<String>> visited) {
+    if (vertex == null) return "";
+    if (visited.contains(vertex)) return "";
+
+    visited.add(vertex);
+
+    String longest = vertex.data;
+
+
+    for (Vertex<String> word : vertex.neighbors){
+      String neighborLongest = longestWord(word, visited);
+      
+      if (neighborLongest.length() > longest.length()){
+        longest = neighborLongest;
+      }
+      
+    }
+
+
+    return longest;
   }
 
   /**
@@ -34,6 +77,26 @@ public class Build {
    * @param <T> the type of values stored in the vertices
    */
   public static <T> void printSelfLoopers(Vertex<T> vertex) {
+    if (vertex == null) return; 
+    Set <Vertex<T>> visited = new HashSet<>();
+
+    printSelfLoopersDFS(vertex, visited);
+  }
+
+  public static <T> void printSelfLoopersDFS(Vertex<T> vertex, Set<Vertex<T>> visited){
+
+    if (visited.contains(vertex)) return; 
+    
+    visited.add(vertex);
+
+    if (vertex.neighbors.contains(vertex)) {
+      System.out.println(vertex.data); 
+  }
+
+    for( var neighbor : vertex.neighbors){
+      printSelfLoopersDFS(neighbor, visited);
+    }
+
   }
 
   /**
@@ -45,6 +108,24 @@ public class Build {
    * @return true if the destination is reachable from the start, false otherwise
    */
   public static boolean canReach(Airport start, Airport destination) {
+    if(start == null || destination == null) return false;
+    if (start == destination) return true; 
+    Set<Airport> visited = new HashSet<>(); 
+
+    return canReach(start, destination, visited);
+  }
+
+  public static boolean canReach (Airport start, Airport destination, Set<Airport> visitedAirports){
+
+    if (visitedAirports.contains(start)) return false; 
+    if (start == destination) return true;
+    visitedAirports.add(start);
+    
+    for (Airport newPort : start.getOutboundFlights()){
+        if(canReach(newPort, destination, visitedAirports)){
+          return true;
+        }
+    }
     return false;
   }
 
@@ -58,6 +139,26 @@ public class Build {
    * @return a set of values that cannot be reached from the starting value
    */
   public static <T> Set<T> unreachable(Map<T, List<T>> graph, T starting) {
-    return new HashSet<>();
+
+    Set<T> reachable = new HashSet<>();
+
+    unreachableDFS(graph, starting, reachable);
+
+    Set<T> allKeys = graph.keySet();  
+     allKeys.removeAll(reachable); 
+    return allKeys;
+  }
+
+  public static <T> void unreachableDFS (Map<T, List<T>> graph, T node, Set<T> reachable){
+    if (reachable.contains(node)) {
+      return;
+    }
+    reachable.add(node);
+
+    if (graph.containsKey(node)) {
+      for (T neighbor : graph.get(node)) {
+        unreachableDFS(graph, neighbor, reachable);
+      }
+    }
   }
 }
